@@ -1,0 +1,10 @@
+export { environmentalAlerts } from "@/data/mock/alerts";
+export { biodiversitySightings } from "@/data/mock/biodiversity";
+export { biodiversityOperationsData } from "@/data/mock/biodiversityOperations";
+export { districtProfiles } from "@/data/mock/districts";
+export { floodMapData, floodRisks } from "@/data/mock/flood";
+export { floodOperationsData } from "@/data/mock/floodOperations";
+export { incidentCategoryDefinitions, incidentReports } from "@/data/mock/incidents";
+export { communityReports } from "@/data/mock/reports";
+export { riverHealthMetrics } from "@/data/mock/river";
+export { weatherForecasts } from "@/data/mock/weather";
