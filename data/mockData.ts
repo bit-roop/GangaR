@@ -1,4 +1,5 @@
 import { environmentalAlerts, biodiversitySightings, floodMapData, floodRisks, communityReports, riverHealthMetrics, weatherForecasts } from "@/data/mock";
+import { routes } from "@/config/routes";
 import { incidentCategoryDefinitions, incidentReports } from "@/data/mock";
 import type { DashboardData, Stat } from "@/types/dashboard";
 
@@ -31,11 +32,11 @@ export const dashboardData: DashboardData = {
     { label: "Biodiversity", icon: "🪶" },
     { label: "Flood Prediction", icon: "△" },
     { label: "Reports", icon: "📄" },
-    { label: "Traditional Knowledge", icon: "⚚" },
-    { label: "Map Explorer", icon: "✧" },
-    { label: "Community", icon: "👥", href: "/community" },
+    { label: "Traditional Knowledge", icon: "⚚", href: routes.traditionalKnowledge },
+    { label: "Map Explorer", icon: "✧", href: "/operations/map-explorer" },
+    { label: "Community", icon: "👥", href: "/operations/community" },
     { label: "Alerts & News", icon: "🔔" },
-    { label: "Settings", icon: "⚙" }
+    { label: "Settings", icon: "⚙", href: routes.settings }
   ],
   stats: [
     {

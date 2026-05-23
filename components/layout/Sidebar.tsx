@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 
+import { routes } from "@/config/routes";
 import { cn } from "@/lib/utils/cn";
 import type { SidebarItem } from "@/types/dashboard";
 
@@ -15,17 +16,19 @@ export function Sidebar({ items }: SidebarProps) {
 
   return (
     <aside className="sidebar">
-      <div className="brand">
+      <Link href={routes.dashboard} className="brand" aria-label="Go to GangaRakshak AI dashboard">
         <div className="brand-mark">🌿</div>
         <div>
           <h1>GangaRakshak AI</h1>
           <p>Our River. Our Future.</p>
         </div>
-      </div>
+      </Link>
 
       <nav className="menu">
         {items.map((item) => {
-          const isActive = item.href ? pathname === item.href : item.active;
+          const isActive = item.href
+            ? pathname === item.href || (item.href === routes.dashboard && pathname === "/")
+            : item.active;
           const content = (
             <>
               <span className="menu-icon" aria-hidden="true">

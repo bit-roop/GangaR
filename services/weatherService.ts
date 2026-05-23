@@ -83,7 +83,6 @@ function average(values: Array<number | undefined>, count: number) {
 
 async function fetchJson<T>(url: string) {
   const response = await fetch(url, {
-    cache: "no-store",
     next: { revalidate: 60 * 60 * 3 }
   });
 
@@ -137,10 +136,19 @@ export async function getWeatherSummary(location = "Patna, Bihar"): Promise<Weat
   const districtName = location.split(",")[0]?.trim() || "Patna";
 
   try {
-    const [weather, aqi] = await Promise.all([
+    const [weatherResult, aqiResult] = await Promise.allSettled([
       fetchDistrictWeather(districtName),
       getAqiSummary(location)
     ]);
+
+    const weather =
+      weatherResult.status === "fulfilled"
+        ? weatherResult.value
+        : getForecastFallback(districtName);
+    const aqi =
+      aqiResult.status === "fulfilled"
+        ? aqiResult.value
+        : await getAqiSummary(location);
 
     const value: WeatherSummary = {
       temperatureC: weather.temperatureC,

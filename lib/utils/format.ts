@@ -34,6 +34,11 @@ function parseOperationalDate(value: string) {
   return parseLegacyIstDate(value);
 }
 
+export function normalizeOperationalTimestamp(value: string, fallback = new Date()) {
+  const parsed = parseOperationalDate(value);
+  return (parsed ?? fallback).toISOString();
+}
+
 export function formatOperationalDateTime(value: string, timeZone?: string) {
   const parsed = parseOperationalDate(value);
   if (!parsed) return value;

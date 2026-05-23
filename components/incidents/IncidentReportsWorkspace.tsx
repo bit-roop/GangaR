@@ -9,6 +9,7 @@ import { getIncidentReports, resolveIncidentEvidenceUrl, updateIncidentVerificat
 import { getSubmissionFailureMessage } from "@/lib/feedback/operationalMessages";
 import { useUiFeedbackStore } from "@/lib/state/useUiFeedbackStore";
 import { OperationalDetailSkeleton, OperationalEmptyState, OperationalSkeletonRows } from "@/components/ui/OperationalState";
+import { ecosystemSignals, operationalWorkflow } from "@/data/mock";
 import type { AnalystAction } from "@/types/dashboard";
 import type { IncidentCategory, IncidentReport, IncidentSeverity, IncidentStatus, VerificationStatus } from "@/types/environment";
 
@@ -137,24 +138,25 @@ function EvidencePreview({ src, alt }: { src: string; alt: string }) {
 }
 
 export function IncidentReportsWorkspace({ initialReports = [] }: IncidentReportsWorkspaceProps) {
-  const [reports, setReports] = useState<IncidentReport[]>(initialReports);
   const [filters, setFilters] = useState<ReportFilters>(defaultFilters);
   const [selectedReportId, setSelectedReportId] = useState<string | null>(initialReports[0]?.id ?? null);
   const [activeActionId, setActiveActionId] = useState<string | null>(null);
   const [isLoadingReports, setIsLoadingReports] = useState(initialReports.length === 0);
   const [reportsError, setReportsError] = useState<string | null>(null);
   const activeRole = useOperationalStore((state) => state.activeRole);
+  const reports = useOperationalStore((state) => state.incidentReports);
   const setIncidentReports = useOperationalStore((state) => state.setIncidentReports);
   const replaceIncidentReport = useOperationalStore((state) => state.replaceIncidentReport);
   const pushToast = useUiFeedbackStore((state) => state.pushToast);
 
   function syncReports(nextReports: IncidentReport[]) {
-    setReports(nextReports);
     setIncidentReports(nextReports);
   }
 
   useEffect(() => {
-    setIncidentReports(initialReports);
+    if (initialReports.length) {
+      setIncidentReports(initialReports);
+    }
   }, [initialReports, setIncidentReports]);
 
   useEffect(() => {
@@ -255,12 +257,21 @@ export function IncidentReportsWorkspace({ initialReports = [] }: IncidentReport
   );
 
   const canModerate = activeRole === "Analyst" || activeRole === "Admin";
+  const selectedLinkedSignals = useMemo(
+    () =>
+      selectedReport
+        ? ecosystemSignals
+            .filter((signal) => signal.relatedIncidentId === selectedReport.id || signal.district === selectedReport.district)
+            .slice(0, 3)
+        : [],
+    [selectedReport]
+  );
 
   async function handleAction(incidentId: string, action: AnalystAction) {
     setActiveActionId(incidentId);
     const previous = reports;
-    setReports((current) =>
-      current.map((report) =>
+    syncReports(
+      reports.map((report) =>
         report.id !== incidentId
           ? report
           : {
@@ -530,6 +541,24 @@ export function IncidentReportsWorkspace({ initialReports = [] }: IncidentReport
                       <strong>{item.label}</strong>
                       <p>{item.detail}</p>
                       <span>{formatOperationalDateTime(item.timestamp)}</span>
+                    </div>
+                  ))}
+                </div>
+              </section>
+
+              <section className="reports-detail-section">
+                <span className="incident-section-label">Connected ecosystem flow</span>
+                <div className="reports-pill-row">
+                  {operationalWorkflow.map((step) => (
+                    <span className="reports-status-pill tone-neutral" key={step}>{step}</span>
+                  ))}
+                </div>
+                <div className="reports-history-list">
+                  {selectedLinkedSignals.map((signal) => (
+                    <div key={signal.id} className="reports-history-item">
+                      <strong>{signal.category} · {signal.severity}</strong>
+                      <p>{signal.title}</p>
+                      <span>{signal.district} • {signal.updatedAgo}</span>
                     </div>
                   ))}
                 </div>

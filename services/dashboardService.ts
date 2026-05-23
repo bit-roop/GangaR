@@ -7,9 +7,10 @@ import { getBiodiversityHighlights } from "@/services/biodiversityService";
 import { getFloodPanelData } from "@/services/floodService";
 import { getRiverHealthMetrics } from "@/services/riverService";
 import { getWeatherSummary } from "@/services/weatherService";
+import { cache } from "react";
 import type { DashboardData } from "@/types/dashboard";
 
-export async function getDashboardData(): Promise<DashboardData> {
+export const getDashboardData = cache(async function getDashboardData(): Promise<DashboardData> {
   const [weatherResult, floodPanelResult, biodiversityResult, alertsResult, riverHealthResult] = await Promise.allSettled([
     getWeatherSummary(),
     getFloodPanelData(),
@@ -51,6 +52,7 @@ export async function getDashboardData(): Promise<DashboardData> {
             }
           ]
         : [];
+  const incidents = incidentReports;
 
   return {
       location: "Patna, Bihar",
@@ -70,11 +72,11 @@ export async function getDashboardData(): Promise<DashboardData> {
         { label: "Biodiversity", icon: "🪶", href: routes.biodiversityIntelligence },
         { label: "Flood Prediction", icon: "△", href: routes.floodOperations },
         { label: "Reports", icon: "📄", href: routes.incidentMonitoring },
-        { label: "Traditional Knowledge", icon: "⚚" },
-        { label: "Map Explorer", icon: "✧" },
+        { label: "Traditional Knowledge", icon: "⚚", href: routes.traditionalKnowledge },
+        { label: "Map Explorer", icon: "✧", href: routes.mapExplorer },
         { label: "Community", icon: "👥", href: routes.community },
-        { label: "Alerts & News", icon: "🔔" },
-        { label: "Settings", icon: "⚙" }
+        { label: "Alerts & News", icon: "🔔", href: routes.alerts },
+        { label: "Settings", icon: "⚙", href: routes.settings }
       ],
       stats: [
         {
@@ -137,7 +139,7 @@ export async function getDashboardData(): Promise<DashboardData> {
       ],
       floodRisks,
       floodPanel,
-      incidents: incidentReports,
+      incidents,
       incidentCategories: incidentCategoryDefinitions,
       userState: {
         activeRole: "Analyst"
@@ -148,7 +150,7 @@ export async function getDashboardData(): Promise<DashboardData> {
           const flood = floodRisks.find((item) => item.district === district.name) ?? floodRisks[0];
           const weatherItem = weatherForecasts.find((item) => item.district === district.name) ?? weatherForecasts[0];
           const districtAlerts = environmentalAlerts.filter((item) => item.district === district.name).slice(0, 2);
-          const districtIncidents = incidentReports
+          const districtIncidents = incidents
             .filter((item) => item.district === district.name && (item.verificationStatus === "Verified" || item.verificationStatus === "Escalated"))
             .slice(0, 1);
           const districtBiodiversity = biodiversitySightings.filter((item) => item.district === district.name);
@@ -246,4 +248,4 @@ export async function getDashboardData(): Promise<DashboardData> {
         detail: `${communityReports[0].issueType.replace(/\b\w/g, (char) => char.toUpperCase())} reported near ${communityReports[0].locality}, ${communityReports[0].district}`
       }
     } satisfies DashboardData;
-}
+});

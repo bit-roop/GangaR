@@ -8,7 +8,6 @@ import type { SimulationRole } from "@/types/dashboard";
 
 const roleOptions: SimulationRole[] = [
   "Citizen",
-  "Environmental Monitor / Volunteer",
   "Analyst",
   "Admin"
 ];
@@ -22,13 +21,17 @@ export function RoleSimulationSelect({ compact = false }: RoleSimulationSelectPr
   const activeRole = useOperationalStore((state) => state.activeRole ?? fallbackRole);
   const setActiveRole = useOperationalStore((state) => state.setActiveRole);
   const [isOpen, setIsOpen] = useState(false);
+  const [hasMounted, setHasMounted] = useState(false);
   const containerRef = useRef<HTMLDivElement | null>(null);
 
   const safeRole = roleOptions.includes(activeRole) ? activeRole : fallbackRole;
   const compactLabel = useMemo(() => {
-    if (safeRole === "Environmental Monitor / Volunteer") return "Volunteer";
     return safeRole;
   }, [safeRole]);
+
+  useEffect(() => {
+    setHasMounted(true);
+  }, []);
 
   useEffect(() => {
     if (!compact || !isOpen) return;
@@ -53,6 +56,29 @@ export function RoleSimulationSelect({ compact = false }: RoleSimulationSelectPr
       window.removeEventListener("keydown", handleKeyDown);
     };
   }, [compact, isOpen]);
+
+  if (!hasMounted) {
+    if (compact) {
+      return (
+        <div className="role-simulation-popover">
+          <div className="role-simulation-trigger" aria-hidden="true">
+            <span className="role-simulation-trigger-copy">
+              <span>Simulation Mode</span>
+              <strong>{compactLabel}</strong>
+            </span>
+            <span className="role-simulation-trigger-caret">▾</span>
+          </div>
+        </div>
+      );
+    }
+
+    return (
+      <div className="role-simulation-select">
+        <span>Role simulation</span>
+        <div className="role-simulation-static-value">{safeRole}</div>
+      </div>
+    );
+  }
 
   if (compact) {
     return (

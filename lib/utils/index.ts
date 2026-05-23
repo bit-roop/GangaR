@@ -9,5 +9,6 @@ export {
   formatPopulation,
   formatTimestamp,
   getOperationalTimestampValue,
-  getCurrentUtcIsoTimestamp
+  getCurrentUtcIsoTimestamp,
+  normalizeOperationalTimestamp
 } from "@/lib/utils/format";

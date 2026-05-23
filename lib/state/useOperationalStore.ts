@@ -5,6 +5,7 @@ import { createJSONStorage, persist } from "zustand/middleware";
 import type { StateStorage } from "zustand/middleware";
 
 import { debugOperationalState } from "@/lib/state/operationalDebug";
+import { normalizeOperationalTimestamp } from "@/lib/utils";
 import type { IncidentDraft, IncidentFilterState, SimulationRole } from "@/types/dashboard";
 import type { IncidentReport } from "@/types/environment";
 
@@ -40,7 +41,6 @@ type OperationalState = OperationalSelection & {
   incidentFilters: IncidentFilterState;
   incidentDraft: IncidentDraft;
   activeRole: SimulationRole;
-  submissionCooldownUntil: number | null;
   setSelectedDistrict: (district: string | null) => void;
   setSelectedFloodZone: (zoneId: string | null) => void;
   setSelectedBiodiversityEntity: (entity: string | null) => void;
@@ -81,7 +81,6 @@ const DEFAULT_DISTRICT = "Patna";
 const DEFAULT_ROLE: SimulationRole = "Citizen";
 const simulationRoles: SimulationRole[] = [
   "Citizen",
-  "Environmental Monitor / Volunteer",
   "Analyst",
   "Admin"
 ];
@@ -105,6 +104,20 @@ const defaultIncidentDraft: IncidentDraft = {
   longitude: "",
   evidence: []
 };
+
+function normalizeStoreIncidentReport(report: IncidentReport): IncidentReport {
+  return {
+    ...report,
+    reportedAt: normalizeOperationalTimestamp(report.reportedAt),
+    updatedAt: normalizeOperationalTimestamp(report.updatedAt || report.reportedAt)
+  };
+}
+
+function sortIncidentReports(reports: IncidentReport[]) {
+  return [...reports]
+    .map(normalizeStoreIncidentReport)
+    .sort((left, right) => new Date(right.reportedAt).getTime() - new Date(left.reportedAt).getTime());
+}
 
 function isSimulationRole(value: unknown): value is SimulationRole {
   return typeof value === "string" && simulationRoles.includes(value as SimulationRole);
@@ -176,7 +189,6 @@ export const useOperationalStore = create<OperationalState>()(
       incidentFilters: defaultIncidentFilters,
       incidentDraft: defaultIncidentDraft,
       activeRole: DEFAULT_ROLE,
-      submissionCooldownUntil: null,
       setSelectedDistrict: (district) =>
         set((state) => {
           const nextState = {
@@ -261,19 +273,18 @@ export const useOperationalStore = create<OperationalState>()(
       setIncidentReports: (reports) =>
         set((state) => ({
           ...state,
-          incidentReports: reports
+          incidentReports: sortIncidentReports(reports)
         })),
       addIncidentReport: (report) =>
         set((state) => ({
           ...state,
-          incidentReports: [report, ...state.incidentReports],
-          submissionCooldownUntil: Date.now() + 1000 * 60 * 3
+          incidentReports: sortIncidentReports([report, ...state.incidentReports])
         })),
       replaceIncidentReport: (report) =>
         set((state) => ({
           ...state,
-          incidentReports: state.incidentReports.map((incident) =>
-            incident.id === report.id ? report : incident
+          incidentReports: sortIncidentReports(
+            state.incidentReports.map((incident) => (incident.id === report.id ? report : incident))
           )
         })),
       setIncidentFilter: (key, value) =>
@@ -475,7 +486,6 @@ export const useOperationalStore = create<OperationalState>()(
         incidentFilters: state.incidentFilters,
         incidentReports: state.incidentReports,
         activeRole: normalizeActiveRole(state.activeRole),
-        submissionCooldownUntil: state.submissionCooldownUntil,
         isIncidentReviewPanelOpen: state.isIncidentReviewPanelOpen
       })
     }

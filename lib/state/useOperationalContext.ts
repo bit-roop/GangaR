@@ -21,7 +21,6 @@ export function useOperationalContext() {
       incidentReports: state.incidentReports,
       incidentFilters: state.incidentFilters,
       activeRole: state.activeRole,
-      submissionCooldownUntil: state.submissionCooldownUntil,
       lastInteractionSource: state.lastInteractionSource
     }))
   );
@@ -172,7 +171,6 @@ export function useOperationalContext() {
     selection,
     activeContextLevel: selection.activeContextLevel,
     activeRole: selection.activeRole,
-    submissionCooldownUntil: selection.submissionCooldownUntil,
     ...derived
   };
 }

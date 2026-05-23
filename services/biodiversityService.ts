@@ -1,12 +1,10 @@
 import { biodiversitySightings } from "@/data/mock";
-import { apiClient } from "@/lib/api/client";
 import type { BiodiversityEntry } from "@/types/dashboard";
 import type { BiodiversitySighting } from "@/types/environment";
 import type { ServiceResult } from "@/types/service";
 
 export async function getBiodiversityHighlights(): Promise<BiodiversityEntry[]> {
-  return apiClient.get("/biodiversity/highlights", {
-    mockData: biodiversitySightings.map((item) => ({
+  return biodiversitySightings.map((item) => ({
       name: item.speciesName,
       meta: item.scientificName,
       status: item.conservationStatus,
@@ -34,18 +32,13 @@ export async function getBiodiversityHighlights(): Promise<BiodiversityEntry[]> 
           : item.speciesName === "Indian Softshell Turtle"
             ? "Nest zone under observation"
             : "Breeding pair activity steady"
-    })),
-    mockLatencyMs: 600
-  });
+    }));
 }
 
 export async function getBiodiversitySightings(): Promise<ServiceResult<BiodiversitySighting[]>> {
-  return apiClient.get("/biodiversity/sightings", {
-    mockData: {
-      data: biodiversitySightings,
-      lastUpdated: biodiversitySightings[0].lastSighted,
-      source: "mock"
-    },
-    mockLatencyMs: 1200
-  });
+  return {
+    data: biodiversitySightings,
+    lastUpdated: biodiversitySightings[0].lastSighted,
+    source: "mock"
+  };
 }

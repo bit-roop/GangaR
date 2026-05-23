@@ -35,8 +35,8 @@ export default async function OperationsLayout({
         <section className="desktop-frame">
           <Sidebar
             items={[
-              { label: "Dashboard", icon: "▥", href: "/" },
-              { label: "Reports", icon: "📄", href: "/operations/incidents" }
+              { label: "Dashboard", icon: "▥", href: "/operations/dashboard" },
+              { label: "Reports", icon: "📄", href: "/operations/reports" }
             ]}
           />
           <div className="desktop-content">{children}</div>

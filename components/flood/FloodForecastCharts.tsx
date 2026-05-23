@@ -13,6 +13,7 @@ import {
   YAxis
 } from "recharts";
 
+import { getBoundedTooltipOffset } from "@/lib/utils/chartTooltip";
 import type { FloodChartPoint } from "@/types/flood";
 
 type ForecastChartCardProps = {
@@ -44,32 +45,23 @@ function ForecastTooltip({
 
   if (!active || !point) return null;
 
-  const x = coordinate?.x ?? 0;
-  const y = coordinate?.y ?? 0;
-  const viewX = viewBox?.x ?? 0;
-  const viewY = viewBox?.y ?? 0;
-  const width = viewBox?.width ?? 0;
-  const height = viewBox?.height ?? 0;
   const tooltipWidth = 132;
   const tooltipHeight = 62;
-  const sideOffset = 12;
-  const verticalOffset = 10;
-  const rightSpace = viewX + width - x;
-  const leftSpace = x - viewX;
-  const bottomSpace = viewY + height - y;
-  const topSpace = y - viewY;
-
-  const openLeft = rightSpace < tooltipWidth + sideOffset && leftSpace > rightSpace;
-  const openRight = !openLeft;
-  const openDown = topSpace < tooltipHeight + verticalOffset && bottomSpace > topSpace;
-  const openUp = !openDown;
+  const position = getBoundedTooltipOffset({
+    coordinate,
+    viewBox,
+    width: tooltipWidth,
+    height: tooltipHeight,
+    padding: 8,
+    gap: 12
+  });
 
   return (
     <div
-      className={`flood-chart-tooltip ${openLeft ? "edge-left" : "edge-right"} ${openDown ? "edge-down" : "edge-up"}`}
+      className={`flood-chart-tooltip ${position.edgeX} ${position.edgeY}`}
       style={{
-        left: openRight ? sideOffset : -tooltipWidth - sideOffset,
-        top: openDown ? verticalOffset : -tooltipHeight - verticalOffset
+        left: position.left,
+        top: position.top
       }}
     >
       <i className="flood-chart-tooltip-arrow" />
@@ -105,7 +97,7 @@ export function ForecastChartCard({
       </div>
 
       <div className="flood-chart-shell">
-        <ResponsiveContainer width="100%" height={260}>
+        <ResponsiveContainer width="100%" height={220}>
           {variant === "bar" ? (
             <BarChart data={data} margin={{ top: 14, right: 10, left: -18, bottom: 0 }}>
               <CartesianGrid stroke="rgba(16, 33, 28, 0.06)" vertical={false} />
@@ -127,7 +119,7 @@ export function ForecastChartCard({
               <Bar dataKey="value" radius={[12, 12, 8, 8]} animationDuration={900}>
                 {data.map((point, index) => (
                   <Cell
-                    key={point.label}
+                    key={`${point.label}-${index}`}
                     fill={index === 2 ? "#2ca7d0" : color}
                     fillOpacity={index === 2 ? 1 : 0.82}
                   />

@@ -1,6 +1,9 @@
 "use client";
 
+import Link from "next/link";
+
 import { RoleSimulationSelect } from "@/components/incidents/RoleSimulationSelect";
+import { routes } from "@/config/routes";
 import type { WeatherSummary } from "@/types/dashboard";
 
 type TopbarProps = {
@@ -36,7 +39,9 @@ export function Topbar({ location, greeting, subcopy, weather }: TopbarProps) {
         </div>
         <div className="topbar-identity">
           <RoleSimulationSelect compact />
-          <div className="avatar">A</div>
+          <Link href={routes.settings} className="avatar" aria-label="Open settings">
+            A
+          </Link>
         </div>
       </div>
     </header>

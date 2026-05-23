@@ -113,7 +113,6 @@ function deriveTrend(cityKey: string, nextAqi: number | null): AqiTrend {
 
 async function fetchJson<T>(url: string) {
   const response = await fetch(url, {
-    cache: "no-store",
     next: { revalidate: 60 * 60 * 3 }
   });
 

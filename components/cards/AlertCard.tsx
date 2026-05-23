@@ -10,8 +10,8 @@ export function AlertCard({ title, count, items }: AlertCardProps) {
       <p className="stat-title">{title}</p>
       <div className="stat-value red">{count}</div>
       <p className="stat-detail red">
-        {items.map((item) => (
-          <span key={item}>{item}</span>
+        {items.map((item, index) => (
+          <span key={`${item}-${index}`}>{item}</span>
         ))}
       </p>
       <p className="stat-time">Last updated: 1 hr ago</p>

@@ -12,9 +12,21 @@ type IntelligenceNodeProps = {
 type Position = { x: number; y: number };
 
 const STORAGE_KEY = "ganga-rakshak-intelligence-node";
+const NODE_SIZE = 62;
+const NODE_MARGIN = 18;
 
 function clamp(value: number, min: number, max: number) {
   return Math.min(Math.max(value, min), max);
+}
+
+function getSafePosition(position: Position): Position {
+  const width = document.documentElement.clientWidth || window.innerWidth;
+  const height = document.documentElement.clientHeight || window.innerHeight;
+
+  return {
+    x: clamp(position.x, NODE_MARGIN, Math.max(NODE_MARGIN, width - NODE_SIZE - NODE_MARGIN)),
+    y: clamp(position.y, NODE_MARGIN, Math.max(NODE_MARGIN, height - NODE_SIZE - NODE_MARGIN))
+  };
 }
 
 export function IntelligenceNode({ label, hidden, onActivate }: IntelligenceNodeProps) {
@@ -25,17 +37,12 @@ export function IntelligenceNode({ label, hidden, onActivate }: IntelligenceNode
   const moved = useRef(false);
 
   useEffect(() => {
-    const initialX = window.innerWidth - 110;
+    const initialX = (document.documentElement.clientWidth || window.innerWidth) - NODE_SIZE - NODE_MARGIN;
     const initialY = 96;
     const stored = window.localStorage.getItem(STORAGE_KEY);
     const parsed = stored ? (JSON.parse(stored) as Position) : null;
 
-    setPosition(
-      parsed ?? {
-        x: initialX,
-        y: initialY
-      }
-    );
+    setPosition(getSafePosition(parsed ?? { x: initialX, y: initialY }));
     setMounted(true);
   }, []);
 
@@ -50,31 +57,30 @@ export function IntelligenceNode({ label, hidden, onActivate }: IntelligenceNode
     const onMove = (event: PointerEvent) => {
       if (!dragging.current) return;
       moved.current = true;
-      const nextX = clamp(event.clientX - dragOffset.current.x, 8, window.innerWidth - 72);
-      const nextY = clamp(event.clientY - dragOffset.current.y, 8, window.innerHeight - 72);
-      setPosition({ x: nextX, y: nextY });
+      setPosition(getSafePosition({
+        x: event.clientX - dragOffset.current.x,
+        y: event.clientY - dragOffset.current.y
+      }));
     };
 
     const onUp = () => {
       if (!dragging.current) return;
       dragging.current = false;
-      setPosition((current) => {
-        const snapLeft = current.x < window.innerWidth / 2;
-        return {
-          x: snapLeft ? 12 : window.innerWidth - 76,
-          y: clamp(current.y, 12, window.innerHeight - 76)
-        };
-      });
+      setPosition((current) => getSafePosition(current));
+    };
+
+    const onResize = () => {
+      setPosition((current) => getSafePosition(current));
     };
 
     window.addEventListener("pointermove", onMove);
     window.addEventListener("pointerup", onUp);
-    window.addEventListener("resize", onUp);
+    window.addEventListener("resize", onResize);
 
     return () => {
       window.removeEventListener("pointermove", onMove);
       window.removeEventListener("pointerup", onUp);
-      window.removeEventListener("resize", onUp);
+      window.removeEventListener("resize", onResize);
     };
   }, [mounted]);
 

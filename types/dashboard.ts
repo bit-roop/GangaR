@@ -188,7 +188,6 @@ export type AnalystAction = "verify" | "reject" | "escalate" | "resolve";
 
 export type SimulationRole =
   | "Citizen"
-  | "Environmental Monitor / Volunteer"
   | "Analyst"
   | "Admin";
 

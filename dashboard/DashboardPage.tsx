@@ -2,12 +2,27 @@ import { DashboardInteractiveShell } from "@/components/dashboard/DashboardInter
 import { Sidebar } from "@/components/layout/Sidebar";
 import { getDashboardData } from "@/services/dashboardService";
 
-export async function DashboardPage() {
+type DashboardPageProps = {
+  embedded?: boolean;
+};
+
+export async function DashboardPage({ embedded = false }: DashboardPageProps = {}) {
   let dashboardData;
 
   try {
     dashboardData = await getDashboardData();
   } catch {
+    if (embedded) {
+      return (
+        <div className="error-state">
+          <h2>Live dashboard data is temporarily unavailable.</h2>
+          <p>We could not load the latest environmental monitoring snapshot for the Patna basin.</p>
+          <span>Please refresh in a moment to retry the mock service layer.</span>
+          <a href="/operations/dashboard" className="retry-link">Retry dashboard feed</a>
+        </div>
+      );
+    }
+
     return (
       <main className="page-shell">
         <section className="desktop-frame">
@@ -32,6 +47,6 @@ export async function DashboardPage() {
   }
 
   return (
-    <DashboardInteractiveShell data={dashboardData} />
+    <DashboardInteractiveShell data={dashboardData} embedded={embedded} />
   );
 }

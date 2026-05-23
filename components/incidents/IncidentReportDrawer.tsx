@@ -28,7 +28,7 @@ function buildIncidentTitle(category: string, district: string) {
 
 export function IncidentReportDrawer({ hasHydratedIncidentFeed = true }: IncidentReportDrawerProps) {
   const data = useDashboardData();
-  const { activeDistrictName, activeRole, submissionCooldownUntil } = useOperationalContext();
+  const { activeDistrictName, activeRole } = useOperationalContext();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [locationMessage, setLocationMessage] = useState<string | null>(null);
   const [submissionError, setSubmissionError] = useState<string | null>(null);
@@ -69,7 +69,6 @@ export function IncidentReportDrawer({ hasHydratedIncidentFeed = true }: Inciden
     [data.floodPanel.map.districtLabels]
   );
 
-  const cooldownActive = Boolean(submissionCooldownUntil && submissionCooldownUntil > Date.now());
   const selectedDistrict = incidentDraft.district || activeDistrictName;
 
   const handleFileChange = async (event: ChangeEvent<HTMLInputElement>) => {
@@ -132,8 +131,6 @@ export function IncidentReportDrawer({ hasHydratedIncidentFeed = true }: Inciden
   };
 
   const handleSubmit = async () => {
-    if (cooldownActive) return;
-
     setIsSubmitting(true);
     setSubmissionError(null);
 
@@ -319,13 +316,6 @@ export function IncidentReportDrawer({ hasHydratedIncidentFeed = true }: Inciden
             </div>
           ) : null}
 
-          {cooldownActive ? (
-            <div className="incident-warning subtle">
-              <strong>Submission cooldown active</strong>
-              <span>Repeated submissions are temporarily rate-limited to preserve verification quality.</span>
-            </div>
-          ) : null}
-
           {incidentDraft.evidence.length ? (
             <div className="incident-evidence-strip">
               {incidentDraft.evidence.map((item) => (
@@ -385,7 +375,7 @@ export function IncidentReportDrawer({ hasHydratedIncidentFeed = true }: Inciden
               type="button"
               className="incident-primary"
               onClick={handleSubmit}
-              disabled={isSubmitting || isUploadingEvidence || cooldownActive || !incidentDraft.description}
+              disabled={isSubmitting || isUploadingEvidence || !incidentDraft.description}
             >
               {isSubmitting ? "Submitting..." : "Submit Report"}
             </button>

@@ -30,13 +30,15 @@ export function AnalystIncidentPanel({
   isOpen = true,
   onClose
 }: AnalystIncidentPanelProps) {
-  const [reports, setReports] = useState<IncidentReport[]>(initialReports);
   const [districtFilter, setDistrictFilter] = useState<string>("All");
   const [activeActionId, setActiveActionId] = useState<string | null>(null);
   const [volunteerAssessments, setVolunteerAssessments] = useState<Record<string, VolunteerAssessment>>({});
   const [panelPosition, setPanelPosition] = useState<PanelPosition>({ x: 0, y: 0 });
   const [dragConstraints, setDragConstraints] = useState({ left: -24, right: 0, top: 0, bottom: 0 });
   const activeRole = useOperationalStore((state) => state.activeRole);
+  const reports = useOperationalStore((state) => state.incidentReports);
+  const setIncidentReports = useOperationalStore((state) => state.setIncidentReports);
+  const replaceIncidentReport = useOperationalStore((state) => state.replaceIncidentReport);
   const pushToast = useUiFeedbackStore((state) => state.pushToast);
   const dragControls = useDragControls();
   const constraintsRef = useRef<HTMLDivElement | null>(null);
@@ -44,12 +46,18 @@ export function AnalystIncidentPanel({
   const [panelError, setPanelError] = useState<string | null>(null);
 
   useEffect(() => {
+    if (initialReports.length) {
+      setIncidentReports(initialReports);
+    }
+  }, [initialReports, setIncidentReports]);
+
+  useEffect(() => {
     let active = true;
 
     void getIncidentReports()
       .then((nextReports) => {
         if (!active) return;
-        setReports(nextReports);
+        setIncidentReports(nextReports);
         setPanelError(null);
       })
       .catch((error) => {
@@ -65,7 +73,7 @@ export function AnalystIncidentPanel({
     return () => {
       active = false;
     };
-  }, []);
+  }, [setIncidentReports]);
 
   useEffect(() => {
     if (!embedded || !isOpen) return;
@@ -142,10 +150,9 @@ export function AnalystIncidentPanel({
       report.verificationStatus === "Resolved"
   );
 
-  const canAccessOperationalQueue =
-    activeRole === "Environmental Monitor / Volunteer" || activeRole === "Analyst" || activeRole === "Admin";
+  const canAccessOperationalQueue = activeRole === "Analyst" || activeRole === "Admin";
   const canModerate = activeRole === "Analyst" || activeRole === "Admin";
-  const isVolunteer = activeRole === "Environmental Monitor / Volunteer";
+  const isVolunteer = false;
   const isAdmin = activeRole === "Admin";
 
   const stats = {
@@ -158,17 +165,15 @@ export function AnalystIncidentPanel({
   const heroCopy =
     activeRole === "Citizen"
       ? "Citizen users do not access the operational moderation workspace. Use the dashboard intake flow to submit a report."
-      : activeRole === "Environmental Monitor / Volunteer"
-        ? "Volunteer review is limited to community verification support. Official moderation and lifecycle changes remain with analysts and operations."
-        : activeRole === "Analyst"
+      : activeRole === "Analyst"
           ? "Analysts can verify, reject, and escalate field reports into the operational incident layer."
           : "Admin view includes full operational visibility across intake, escalation, and resolution stages.";
 
   const handleAction = async (incidentId: string, action: AnalystAction) => {
     setActiveActionId(incidentId);
     const previous = reports;
-    setReports((current) =>
-      current.map((report) =>
+    setIncidentReports(
+      reports.map((report) =>
         report.id !== incidentId
           ? report
           : {
@@ -188,14 +193,14 @@ export function AnalystIncidentPanel({
 
     try {
       const updated = await updateIncidentVerification(incidentId, action);
-      setReports((current) => current.map((report) => (report.id === updated.id ? updated : report)));
+      replaceIncidentReport(updated);
       pushToast({
         tone: "success",
         title: "Moderation updated",
         detail: `Incident ${action === "resolve" ? "resolved" : action === "escalate" ? "escalated" : action === "verify" ? "verified" : "rejected"} successfully.`
       });
     } catch (error) {
-      setReports(previous);
+      setIncidentReports(previous);
       const message = getSubmissionFailureMessage(new Error(`moderation ${String(error)}`));
       pushToast({
         tone: "error",
