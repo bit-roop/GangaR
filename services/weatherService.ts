@@ -23,7 +23,7 @@ type CacheEntry<T> = {
   value: T;
 };
 
-const WEATHER_CACHE_TTL_MS = 1000 * 60 * 60 * 3;
+const WEATHER_CACHE_TTL_MS = 1000 * 60 * 10;
 const weatherSummaryCache = new Map<string, CacheEntry<WeatherSummary>>();
 const forecastCache = new Map<string, CacheEntry<ServiceResult<WeatherForecast[]>>>();
 
@@ -83,7 +83,7 @@ function average(values: Array<number | undefined>, count: number) {
 
 async function fetchJson<T>(url: string) {
   const response = await fetch(url, {
-    next: { revalidate: 60 * 60 * 3 }
+    next: { revalidate: 60 * 10 }
   });
 
   if (!response.ok) {

@@ -34,7 +34,7 @@ type CacheEntry = {
   value: LiveAqiSummary;
 };
 
-const AQI_CACHE_TTL_MS = 1000 * 60 * 60 * 3;
+const AQI_CACHE_TTL_MS = 1000 * 60 * 10;
 const AQI_FALLBACK_TTL_MS = 1000 * 60 * 60;
 const requestCache = new Map<string, CacheEntry>();
 const previousValueCache = new Map<string, number>();
@@ -113,7 +113,7 @@ function deriveTrend(cityKey: string, nextAqi: number | null): AqiTrend {
 
 async function fetchJson<T>(url: string) {
   const response = await fetch(url, {
-    next: { revalidate: 60 * 60 * 3 }
+    next: { revalidate: 60 * 10 }
   });
 
   if (!response.ok) {
