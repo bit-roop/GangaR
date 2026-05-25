@@ -18,7 +18,6 @@ export function HeroBanner({ title, image, thought }: HeroBannerProps) {
               </span>
             ))}
           </h3>
-          <button>Learn More</button>
         </div>
 
         <aside className="thought-card">

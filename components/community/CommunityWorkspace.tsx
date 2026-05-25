@@ -121,8 +121,7 @@ const campaigns = [
     district: "Bhagalpur",
     status: "This week",
     participants: 92,
-    image: "/GRD.png",
-    action: "Learn more"
+    image: "/GRD.png"
   }
 ];
 
@@ -216,7 +215,7 @@ export function CommunityWorkspace() {
             <div className="community-campaign-copy">
               <strong>{campaign.title}</strong>
               <p>{campaign.district} • {campaign.participants} participants</p>
-              <button type="button">{campaign.action}</button>
+              {campaign.action ? <button type="button">{campaign.action}</button> : null}
             </div>
           </article>
         ))}

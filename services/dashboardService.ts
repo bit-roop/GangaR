@@ -120,7 +120,7 @@ export const getDashboardData = cache(async function getDashboardData(): Promise
       biodiversityInsights: [
         {
           label: "Migration activity",
-          value: "3 active corridors",
+          value: "3 stable species",
           note: "Bhagalpur to Munger movement remains stable",
           tone: "blue"
         },

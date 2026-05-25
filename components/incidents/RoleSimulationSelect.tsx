@@ -63,7 +63,7 @@ export function RoleSimulationSelect({ compact = false }: RoleSimulationSelectPr
         <div className="role-simulation-popover">
           <div className="role-simulation-trigger" aria-hidden="true">
             <span className="role-simulation-trigger-copy">
-              <span>Simulation Mode</span>
+              <span>Login as</span>
               <strong>{compactLabel}</strong>
             </span>
             <span className="role-simulation-trigger-caret">▾</span>
@@ -91,7 +91,7 @@ export function RoleSimulationSelect({ compact = false }: RoleSimulationSelectPr
           aria-expanded={isOpen}
         >
           <span className="role-simulation-trigger-copy">
-            <span>Simulation Mode</span>
+            <span>Login as</span>
             <strong>{compactLabel}</strong>
           </span>
           <span className="role-simulation-trigger-caret" aria-hidden="true">
@@ -108,7 +108,7 @@ export function RoleSimulationSelect({ compact = false }: RoleSimulationSelectPr
               exit={{ opacity: 0, y: 6, scale: 0.98 }}
               transition={{ duration: 0.16, ease: "easeOut" }}
             >
-              <p className="role-simulation-menu-label">Simulation Mode</p>
+              <p className="role-simulation-menu-label">Login as</p>
               <div className="role-simulation-menu-list" role="menu" aria-label="Role simulation">
                 {roleOptions.map((role) => (
                   <button

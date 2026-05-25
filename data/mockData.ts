@@ -92,7 +92,7 @@ export const dashboardData: DashboardData = {
   biodiversityInsights: [
     {
       label: "Migration activity",
-      value: "3 active corridors",
+      value: "3 stable species",
       note: "Bhagalpur to Munger movement remains stable",
       tone: "blue"
     },
