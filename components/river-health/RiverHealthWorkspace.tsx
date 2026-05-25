@@ -78,7 +78,7 @@ const stations: SensorStation[] = [
   {
     id: "kanpur",
     name: "Kanpur Urban Edge",
-    stretch: "Mixed-use recovery corridor",
+    stretch: "Water Quality Index and Species Activities",
     status: "watch",
     coordinates: { latitude: 26.4499, longitude: 80.3319 },
     wqi: 67,
